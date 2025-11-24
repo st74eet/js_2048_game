@@ -22,8 +22,16 @@ class Game {
    */
   constructor(initialState) {
     // eslint-disable-next-line no-console
-    console.log(initialState);
+    // console.log(initialState);
+
+    this.matrix = initialState;
+
+    // console.log(this.matrix);
   }
+
+  score = 0;
+
+  // static STATUS = 'E';
 
   moveLeft() {}
   moveRight() {}
@@ -33,12 +41,17 @@ class Game {
   /**
    * @returns {number}
    */
-  getScore() {}
+  getScore() {
+    return this.score;
+  }
 
   /**
    * @returns {number[][]}
    */
-  getState() {}
+  getState() {
+    return this.matrix;
+  }
+  // поточні результати масиву
 
   /**
    * Returns the current game status.
@@ -51,18 +64,55 @@ class Game {
    * `lose` - the game is lost
    */
   getStatus() {}
+  // 'playing' | 'win' | 'lose' | 'not-started'
 
   /**
    * Starts the game.
    */
-  start() {}
+  start() {
+    const randomNumber1 = Math.random();
+    const randomNumber2 = Math.random();
+
+    const result = [2, 2];
+
+    if (randomNumber1 <= 0.1) {
+      result[0] = 4;
+    }
+
+    if (randomNumber2 <= 0.1) {
+      result[1] = 4;
+    }
+
+    return result;
+  }
 
   /**
    * Resets the game.
    */
-  restart() {}
+  restart() {
+    this.matrix = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
 
-  // Add your own methods here
+    this.score = 0;
+
+    return this;
+  }
+
+  getRandomCoords() {
+    let row = Math.floor(Math.random() * 4);
+    let column = Math.floor(Math.random() * 4);
+
+    while (this.matrix[row][column] !== 0) {
+      row = Math.floor(Math.random() * 4);
+      column = Math.floor(Math.random() * 4);
+    }
+
+    return [row, column];
+  }
 }
 
 module.exports = Game;
