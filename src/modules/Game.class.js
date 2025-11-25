@@ -21,22 +21,147 @@ class Game {
    * initial state.
    */
   constructor(initialState) {
-    // eslint-disable-next-line no-console
-    // console.log(initialState);
-
     this.matrix = initialState;
-
-    // console.log(this.matrix);
   }
 
   score = 0;
+  status = 'idle';
 
-  // static STATUS = 'E';
+  static isGameActive = false;
 
-  moveLeft() {}
-  moveRight() {}
-  moveUp() {}
-  moveDown() {}
+  moveLeft() {
+    const callback = (number) => number !== 0;
+
+    for (let arrayIndex = 0; arrayIndex < this.matrix.length; arrayIndex++) {
+      const array = this.matrix[arrayIndex];
+
+      const additionalArray = array.filter(callback);
+
+      for (let i = 0; i < additionalArray.length; i++) {
+        if (additionalArray[i] === additionalArray[i + 1]) {
+          const add = additionalArray[i] * 2;
+
+          additionalArray[i] = add;
+          additionalArray[i + 1] = 0;
+
+          this.score += add;
+        }
+      }
+
+      const filteredArray = additionalArray.filter(callback);
+
+      while (filteredArray.length - 1 < array.length - 1) {
+        filteredArray.push(0);
+      }
+
+      this.matrix[arrayIndex] = filteredArray;
+    }
+
+    return this.matrix;
+  }
+
+  moveRight() {
+    const callback = (number) => number !== 0;
+
+    for (let arrayIndex = 0; arrayIndex < this.matrix.length; arrayIndex++) {
+      const array = this.matrix[arrayIndex];
+
+      const additionalArray = array.filter(callback);
+
+      for (let i = 0; i < additionalArray.length; i++) {
+        const lastElem = additionalArray.length - i - 1;
+
+        if (additionalArray[lastElem] === additionalArray[lastElem - 1]) {
+          const add = additionalArray[lastElem] * 2;
+
+          additionalArray[lastElem] = add;
+          additionalArray[lastElem - 1] = 0;
+
+          this.score += add;
+        }
+      }
+
+      const filteredArray = additionalArray.filter(callback);
+
+      while (filteredArray.length - 1 < array.length - 1) {
+        filteredArray.unshift(0);
+      }
+
+      this.matrix[arrayIndex] = filteredArray;
+    }
+
+    return this.matrix;
+  }
+
+  moveUp() {
+    const callback = (number) => number !== 0;
+
+    for (let arrayIndex = 0; arrayIndex < this.matrix.length; arrayIndex++) {
+      const columnElements = [];
+
+      this.matrix.forEach(
+        (array, index) => (columnElements[index] = array[arrayIndex]),
+      );
+
+      const filteredElements = columnElements.filter(callback);
+
+      for (let i = 0; i < filteredElements.length; i++) {
+        if (filteredElements[i] === filteredElements[i + 1]) {
+          const add = filteredElements[i] * 2;
+
+          filteredElements[i] = add;
+          filteredElements[i + 1] = 0;
+
+          this.score += add;
+        }
+      }
+
+      const filteredArray = filteredElements.filter(callback);
+
+      while (filteredArray.length - 1 < this.matrix[arrayIndex].length - 1) {
+        filteredArray.push(0);
+      }
+
+      for (let index = 0; index < this.matrix.length; index++) {
+        this.matrix[index][arrayIndex] = filteredArray[index];
+      }
+    }
+  }
+
+  moveDown() {
+    const callback = (number) => number !== 0;
+
+    for (let arrayIndex = 0; arrayIndex < this.matrix.length; arrayIndex++) {
+      const columnElements = [];
+
+      this.matrix.forEach(
+        (array, index) => (columnElements[index] = array[arrayIndex]),
+      );
+
+      const filteredElements = columnElements.filter(callback);
+
+      for (let i = filteredElements.length - 1; i > 0; i--) {
+        if (filteredElements[i] === filteredElements[i - 1]) {
+          const add = filteredElements[i] * 2;
+
+          filteredElements[i] = add;
+          filteredElements[i - 1] = 0;
+
+          this.score += add;
+        }
+      }
+
+      const filteredArray = filteredElements.filter(callback);
+
+      while (filteredArray.length - 1 < this.matrix[arrayIndex].length - 1) {
+        filteredArray.unshift(0);
+      }
+
+      for (let index = 0; index < this.matrix.length; index++) {
+        this.matrix[index][arrayIndex] = filteredArray[index];
+      }
+    }
+  }
 
   /**
    * @returns {number}
@@ -51,7 +176,6 @@ class Game {
   getState() {
     return this.matrix;
   }
-  // поточні результати масиву
 
   /**
    * Returns the current game status.
@@ -63,13 +187,49 @@ class Game {
    * `win` - the game is won;
    * `lose` - the game is lost
    */
-  getStatus() {}
-  // 'playing' | 'win' | 'lose' | 'not-started'
+  getStatus() {
+    return this.status;
+  }
 
   /**
    * Starts the game.
    */
   start() {
+    this.status = 'playing';
+
+    return this.addRandomElements();
+  }
+
+  /**
+   * Resets the game.
+   */
+  restart() {
+    this.matrix = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+
+    this.score = 0;
+    this.status = 'idle';
+
+    return this;
+  }
+
+  getRandomCoords() {
+    let row = Math.floor(Math.random() * 4);
+    let column = Math.floor(Math.random() * 4);
+
+    while (this.matrix[row][column] !== 0 && this.getStatus() === 'playing') {
+      row = Math.floor(Math.random() * 4);
+      column = Math.floor(Math.random() * 4);
+    }
+
+    return [row, column];
+  }
+
+  addRandomElements() {
     const randomNumber1 = Math.random();
     const randomNumber2 = Math.random();
 
@@ -87,31 +247,21 @@ class Game {
   }
 
   /**
-   * Resets the game.
+   * See if matrix has empty spots
    */
-  restart() {
-    this.matrix = [
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-    ];
+  isPlaying() {
+    const zeros = this.matrix.filter((array) => array.includes(0));
+    const win = this.matrix.flat().includes(2048);
 
-    this.score = 0;
-
-    return this;
-  }
-
-  getRandomCoords() {
-    let row = Math.floor(Math.random() * 4);
-    let column = Math.floor(Math.random() * 4);
-
-    while (this.matrix[row][column] !== 0) {
-      row = Math.floor(Math.random() * 4);
-      column = Math.floor(Math.random() * 4);
+    if (!zeros.length) {
+      this.status = 'lose';
     }
 
-    return [row, column];
+    if (win) {
+      this.status = 'win';
+    }
+
+    return this;
   }
 }
 
