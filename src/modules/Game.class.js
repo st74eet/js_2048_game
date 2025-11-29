@@ -1,25 +1,5 @@
 'use strict';
-
-/**
- * This class represents the game.
- * Now it has a basic structure, that is needed for testing.
- * Feel free to add more props and methods if needed.
- */
 class Game {
-  /**
-   * Creates a new game instance.
-   *
-   * @param {number[][]} initialState
-   * The initial state of the board.
-   * @default
-   * [[0, 0, 0, 0],
-   *  [0, 0, 0, 0],
-   *  [0, 0, 0, 0],
-   *  [0, 0, 0, 0]]
-   *
-   * If passed, the board will be initialized with the provided
-   * initial state.
-   */
   constructor(initialState) {
     this.matrix = initialState;
   }
@@ -163,46 +143,24 @@ class Game {
     }
   }
 
-  /**
-   * @returns {number}
-   */
   getScore() {
     return this.score;
   }
 
-  /**
-   * @returns {number[][]}
-   */
   getState() {
     return this.matrix;
   }
 
-  /**
-   * Returns the current game status.
-   *
-   * @returns {string} One of: 'idle', 'playing', 'win', 'lose'
-   *
-   * `idle` - the game has not started yet (the initial state);
-   * `playing` - the game is in progress;
-   * `win` - the game is won;
-   * `lose` - the game is lost
-   */
   getStatus() {
     return this.status;
   }
 
-  /**
-   * Starts the game.
-   */
   start() {
     this.status = 'playing';
 
-    return this.addRandomElements();
+    return [this.addRandomElement(), this.addRandomElement()];
   }
 
-  /**
-   * Resets the game.
-   */
   restart() {
     this.matrix = [
       [0, 0, 0, 0],
@@ -221,7 +179,7 @@ class Game {
     let row = Math.floor(Math.random() * 4);
     let column = Math.floor(Math.random() * 4);
 
-    while (this.matrix[row][column] !== 0 && this.getStatus() === 'playing') {
+    while (this.matrix[row][column] !== 0) {
       row = Math.floor(Math.random() * 4);
       column = Math.floor(Math.random() * 4);
     }
@@ -229,31 +187,35 @@ class Game {
     return [row, column];
   }
 
-  addRandomElements() {
-    const randomNumber1 = Math.random();
-    const randomNumber2 = Math.random();
-
-    const result = [2, 2];
-
-    if (randomNumber1 <= 0.1) {
-      result[0] = 4;
-    }
-
-    if (randomNumber2 <= 0.1) {
-      result[1] = 4;
-    }
-
-    return result;
+  addRandomElement() {
+    return Math.random() < 0.1 ? 4 : 2;
   }
 
-  /**
-   * See if matrix has empty spots
-   */
+  isMovePossible() {
+    const matrixLength = this.matrix.length;
+    const matrix = this.matrix;
+
+    for (let row = 0; row < matrixLength; row++) {
+      for (let column = 0; column < matrixLength; column++) {
+        if (
+          (column < matrixLength - 1 &&
+            matrix[row][column] === matrix[row][column + 1]) ||
+          (row < matrixLength - 1 &&
+            matrix[row][column] === matrix[row + 1][column])
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   isPlaying() {
     const zeros = this.matrix.filter((array) => array.includes(0));
     const win = this.matrix.flat().includes(2048);
 
-    if (!zeros.length) {
+    if (!zeros.length && !this.isMovePossible()) {
       this.status = 'lose';
     }
 

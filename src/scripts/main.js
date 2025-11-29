@@ -76,41 +76,53 @@ document.addEventListener('keydown', (EVENT) => {
   }
 
   const key = EVENT.key;
-  const randomElems = game.addRandomElements();
 
-  let isMoved = false;
+  const prevState = JSON.stringify(game.getState());
 
   if (key === 'ArrowLeft') {
     game.moveLeft();
-    isMoved = true;
   }
 
   if (key === 'ArrowRight') {
     game.moveRight();
-    isMoved = true;
   }
 
   if (key === 'ArrowUp') {
     game.moveUp();
-    isMoved = true;
   }
 
   if (key === 'ArrowDown') {
     game.moveDown();
-    isMoved = true;
   }
 
-  if (isMoved) {
-    randomElems.forEach((value) => {
+  const nextState = JSON.stringify(game.getState());
+
+  if (prevState !== nextState) {
+    const randomElem = game.addRandomElement();
+
+    if (game.matrix.flat().includes(0)) {
       const [row, column] = game.getRandomCoords();
 
-      game.matrix[row][column] = value;
+      game.matrix[row][column] = randomElem;
 
       const cell = arrayOfTr[row].children[column];
 
-      cell.textContent = value;
-      cell.classList.add(`field-cell--${value}`);
-    });
+      cell.textContent = randomElem;
+      cell.classList.add(`field-cell--${randomElem}`);
+    }
+
+    game.isPlaying();
+
+    if (game.matrix.flat().includes(0)) {
+      const [row, column] = game.getRandomCoords();
+
+      game.matrix[row][column] = randomElem;
+
+      const cell = arrayOfTr[row].children[column];
+
+      cell.textContent = randomElem;
+      cell.classList.add(`field-cell--${randomElem}`);
+    }
 
     game.isPlaying();
 
@@ -118,10 +130,6 @@ document.addEventListener('keydown', (EVENT) => {
 
     matrix.forEach((array, rowIndex) => {
       array.forEach((number, colIndex) => {
-        if (game.getStatus() !== 'playing') {
-          return;
-        }
-
         const cell = arrayOfTr[rowIndex].children[colIndex];
 
         cell.textContent = '';
